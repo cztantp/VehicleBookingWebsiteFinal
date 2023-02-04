@@ -5,7 +5,7 @@
 @inject SignOutSessionStateManager SignOutManager
 
 <div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="">VehicleBookingWebsite</a>
+    <a class="navbar-brand" href=""> STCZ Private Transportation </a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -67,17 +67,19 @@
     </ul>
 </div>
 
-@code { private bool collapseNavMenu = true;
+@code { 
+    private bool collapseNavMenu = true;
 
-            private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-            private void ToggleNavMenu()
-            {
-                collapseNavMenu = !collapseNavMenu;
-            }
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
 
-            private async Task BeginSignOut(MouseEventArgs args)
-            {
-                await SignOutManager.SetSignOutState();
-                Navigation.NavigateTo("authentication/logout");
-            } }
+    private async Task BeginSignOut(MouseEventArgs args)
+    {
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
+    } 
+}

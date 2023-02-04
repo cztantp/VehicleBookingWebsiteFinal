@@ -22,6 +22,7 @@ else
     <table class="table table-responsive" id="ordersTable">
         <thead>
             <tr>
+                <th> OrderId </th>
                 <th> Date and Time </th>
                 <th> Quantity </th>
                 <th> Address </th>
@@ -34,6 +35,7 @@ else
             @foreach (var order in Orders)
             {
             <tr>
+                <td> @order.Id </td>
                 <td> @order.OrderDateTime </td>
                 <td> @order.Quantity </td>
                 <td> @order.Location </td>
