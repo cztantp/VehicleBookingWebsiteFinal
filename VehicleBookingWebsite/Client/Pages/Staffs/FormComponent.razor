@@ -1,0 +1,68 @@
+﻿@inject HttpClient _client
+
+<EditForm Model="@staff" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <fieldset disabled="@Disabled">
+        <div class="form-group">
+            <label>First Name: </label>
+            <div>
+                <InputText @bind-Value="@staff.FirstName" class="form-control" />
+                <ValidationMessage For="@(() => staff.FirstName)" />
+            </div>
+
+            <label>Last Name: </label>
+            <div>
+                <InputText @bind-Value="@staff.LastName" class="form-control" />
+                <ValidationMessage For="@(() => staff.LastName)" />
+            </div>
+
+            <label>Address: </label>
+            <div>
+                <InputText @bind-Value="@staff.Address" class="form-control" />
+                <ValidationMessage For="@(() => staff.Address)" />
+            </div>
+
+            <label>Contact Number: </label>
+            <div>
+                <InputText @bind-Value="@staff.Contact" class="form-control" />
+                <ValidationMessage For="@(() => staff.Contact)" />
+            </div>
+
+            <label>Date Of Birth: </label>
+            <div>
+                <InputDate @bind-Value="@staff.DOB" class="form-control" />
+                <ValidationMessage For="@(() => staff.DOB)" />
+            </div>
+
+            <label>Driving License Number: </label>
+            <div>
+                <InputText @bind-Value="@staff.DrivingLicenseNumber" class="form-control" />
+                <ValidationMessage For="@(() => staff.DrivingLicenseNumber)" />
+            </div>
+        </div>
+    </fieldset>
+
+
+    @if (!Disabled)
+    {
+        <button type="submit" class="btn btn-success btn-block">
+            @ButtonText
+        </button>
+    }
+    <BackToList Target="vehicles" />
+</EditForm>
+
+@code { [Parameter] public bool Disabled { get; set; } = false;
+            [Parameter] public Staff staff { get; set; }
+            [Parameter] public string ButtonText { get; set; } = "Save";
+            [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+            private IList<Vehicle> Vehicle;
+
+            protected async override Task OnInitializedAsync()
+
+            {
+                Vehicle = await _client.GetFromJsonAsync<List<Vehicle>>($"{Endpoint.VehiclesEndpoint}");
+                //VehicleTypes = await _client.GetFromJsonAsync<List<VehicleType>>($"{Endpoint.VehicleTypesEndpoint}");
+            } }

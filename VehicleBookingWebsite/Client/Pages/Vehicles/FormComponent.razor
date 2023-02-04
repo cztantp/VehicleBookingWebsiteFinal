@@ -1,0 +1,105 @@
+﻿@inject HttpClient _client
+
+<EditForm Model="@vehicle" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <fieldset disabled="@Disabled">
+        <div class="form-group">
+            <label>License Plate Number: </label>
+            <div>
+                <InputText @bind-Value="@vehicle.LicensePlateNumber" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.LicensePlateNumber)" />
+            </div>
+
+            <label>Colour: </label>
+            <div>
+                <InputText @bind-Value="@vehicle.Colour" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.Colour)" />
+            </div>
+
+            <label>Year: </label>
+            <div>
+                <InputNumber @bind-Value="@vehicle.Year" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.Year)" />
+            </div>
+
+            <label>Brand: </label>
+            <div>
+                <InputText @bind-Value="@vehicle.Brand" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.Brand)" />
+            </div>
+
+            <label>Passenger Capacity: </label>
+            <div>
+                <InputNumber @bind-Value="@vehicle.PassengerCapacity" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.PassengerCapacity)" />
+            </div>
+
+            <label>Price: </label>
+            <div>
+                <InputNumber @bind-Value="@vehicle.Price" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.Price)" />
+            </div>
+            
+        <label>Staff: </label>
+            <div>
+                <InputSelect @bind-Value="vehicle.StaffID" class="form-control">
+                    <option value="">-- Select Staff --</option>
+                    @if (Staff != null)
+                    {
+                        foreach (var staff in Staff)
+                        {
+                            <option value="@staff.Id">@staff.FirstName</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => vehicle.StaffID)" />
+            </div> 
+
+            <label>Vehicle Type: </label>
+            <div>
+                <InputSelect @bind-Value="vehicle.VehicleTypeID" class="form-control">
+                    <option value="">-- Select Vehicle Type --</option>
+                    @if (VehicleTypes != null)
+                    {
+                        foreach (var vehicletypes in VehicleTypes)
+                        {
+                            <option value="@vehicletypes.Id">@vehicletypes.Name</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => vehicle.VehicleTypeID)" />
+            </div>
+            
+        </div>
+    </fieldset>
+
+    @if (!Disabled)
+    {
+        <button type="submit" class="btn btn-success btn-block">
+
+            @ButtonText
+
+        </button>
+    }
+    <BackToList Target="vehicles" />
+</EditForm>
+
+@code {
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public Vehicle vehicle { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    
+        private IList<Staff> Staff;
+        private IList<VehicleType> VehicleTypes;
+
+        protected async override Task OnInitializedAsync()
+
+        {
+            Staff = await _client.GetFromJsonAsync<List<Staff>>($"{Endpoint.StaffsEndpoint}");
+            VehicleTypes = await _client.GetFromJsonAsync<List<VehicleType>>($"{Endpoint.VehicleTypesEndpoint}");
+        }
+    
+}

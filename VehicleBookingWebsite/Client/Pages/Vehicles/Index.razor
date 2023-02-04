@@ -1,0 +1,111 @@
+﻿@page "/vehicles/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+@implements IDisposable
+
+<h3 class="card-title"> Vehicles </h3>
+<a href="/vehicles/create" class="btn-btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Vehicle
+</a>
+<br />
+<br />
+
+@if (Vehicles == null)
+{
+    <div class="alert alert-info"> Loading Vehicles...</div>
+}
+
+else
+{
+    <table class="table table-responsive" id="vehiclesTable">
+        <thead>
+            <tr>
+                <th> License Plate Number </th>
+                <th> Colour </th>
+                <th> Year </th>
+                <th> Brand </th>
+                <th> Passenger Capacity </th>
+                <th> Price </th>
+                <th> Staff </th>
+                <th> Vehicle Type </th>
+                <th> Actions </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vehicles in Vehicles)
+            {
+            <tr>
+                <td> @vehicles.LicensePlateNumber </td>
+                <td> @vehicles.Colour </td>
+                <td> @vehicles.Year </td>
+                <td> @vehicles.Brand </td>
+                <td> @vehicles.PassengerCapacity </td>
+                <td> @vehicles.Price </td>
+                @if (vehicles.StaffID == null)
+                {
+                    <td> </td>
+                }
+                else
+                {
+                    <td> @vehicles.Staff.FirstName </td>
+                }
+
+                @if (vehicles.VehicleTypeID == null)
+                {
+                    <td></td>
+                }
+                else
+                {
+                    <td> @vehicles.VehicleType.Name</td>
+                }
+
+
+                <td>
+                    <a href="/vehicles/view/@vehicles.Id" class="btn btn-primary">
+                        <span class="oi oi-book"></span>
+                    </a>
+                    <a href="/vehicles/edit/@vehicles.Id" class="btn btn-warning">
+                        <span class="oi oi-pencil"></span>
+                    </a>
+                    <button class="btn btn-danger" @onclick="@(()=>Delete(vehicles.Id))">
+                        <span class="oi oi-delete"></span>
+                    </button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Vehicle> Vehicles;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Vehicles = await _client.GetFromJsonAsync<List<Vehicle>>($"{Endpoint.VehiclesEndpoint}");
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await js.InvokeVoidAsync("AddDataTable", "#vehiclesTable");
+    }
+
+    public void Dispose()
+    {
+        js.InvokeVoidAsync("DataTablesDispose", "#vehiclesTable");
+    }
+
+    async Task Delete(int vehicleId)
+    {
+        var vehicle = Vehicles.First(q => q.Id == vehicleId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {vehicle.LicensePlateNumber}?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoint.VehiclesEndpoint}/{vehicleId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}

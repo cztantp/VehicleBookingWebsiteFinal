@@ -1,0 +1,18 @@
+﻿@page "/ordervehicle/view/{id:int}"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3>View</h3>
+
+<FormComponent ordervehicle="ordervehicle" Disabled="true" />
+
+@code {
+    [Parameter] public int id { get; set; }
+    OrderVehicle ordervehicle = new OrderVehicle();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        ordervehicle = await _client.GetFromJsonAsync<OrderVehicle>($"{Endpoint.OrderVehiclesEndpoint}/{id}");
+    }
+
+}

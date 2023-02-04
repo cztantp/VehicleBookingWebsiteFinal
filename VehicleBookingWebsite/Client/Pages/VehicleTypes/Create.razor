@@ -1,0 +1,19 @@
+﻿@page "/vehicletype/create/"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3 class="card-title">Create New VehicleType</h3>
+<hr />
+<br />
+
+<FormComponent ButtonText="Create VehicleType" vehicletype="vehicletype" OnValidSubmit="@CreateVehicleType" />
+
+
+@code {
+    VehicleType vehicletype = new VehicleType();
+    private async Task CreateVehicleType()
+    {
+        await _client.PostAsJsonAsync(Endpoint.VehicleTypesEndpoint, vehicletype);
+        _navManager.NavigateTo("/vehicletype/");
+    }
+}

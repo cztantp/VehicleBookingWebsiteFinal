@@ -1,0 +1,82 @@
+﻿@page "/vehicletype/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+@implements IDisposable
+
+<h3 class="card-title"> VehicleTypes </h3>
+<a href="/vehicletype/create" class="btn-btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New VehicleType
+</a>
+<br />
+<br />
+
+@if (VehicleType == null)
+{
+<div class="alert alert-info"> Loading VehicleTypes...</div> }
+
+else
+{
+    <table class="table table-responsive" id="vehicletypesTable">
+        <thead>
+            <tr>
+                <th> Name </th>
+                <th> Description </th>
+                <th> Actions </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vehicletype in VehicleType)
+            {
+                <tr>
+                    <td> @vehicletype.Name </td>
+                    <td> @vehicletype.Description </td>
+                    <td>
+                        <a href="/vehicletype/view/@vehicletype.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>
+                        </a>
+                        <a href="/vehicletype/edit/@vehicletype.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(()=>Delete(vehicletype.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>}
+        </tbody>
+    </table>
+}
+
+@code { private List<VehicleType> VehicleType;
+
+            protected async override Task OnInitializedAsync()
+            {
+                VehicleType = await _client.GetFromJsonAsync<List<VehicleType>>($"{Endpoint.VehicleTypesEndpoint}");
+            }
+
+            protected async override Task OnAfterRenderAsync(bool firstRender)
+            {
+                await js.InvokeVoidAsync("AddDataTable", "#vehicletypesTable");
+            }
+
+            public void Dispose()
+            {
+                js.InvokeVoidAsync("DataTablesDispose", "#vehicletypesTable");
+            }
+
+            async Task Delete(int vehicletypeId)
+            {
+                var vehicletype = VehicleType.First(q => q.Id == vehicletypeId);
+                var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {vehicletype.Name}?");
+                if (confirm)
+                {
+                    await _client.DeleteAsync($"{Endpoint.VehicleTypesEndpoint}/{vehicletypeId}");
+                    await OnInitializedAsync();
+                }
+            } }
+
+<a href="/vehicles/" class="btn-btn-secondary">
+    <span class="oi oi-arrow-right"></span>
+    View Vehicles
+</a>

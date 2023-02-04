@@ -1,0 +1,93 @@
+﻿@page "/orders/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+@implements IDisposable
+
+<h3 class="card-title"> Orders </h3>
+<a href="/orders/create" class="btn-btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Order
+</a>
+<br />
+<br />
+
+@if (Orders == null)
+{
+    <div class="alert alert-info"> Loading Orders...</div>
+}
+
+else
+{
+    <table class="table table-responsive" id="ordersTable">
+        <thead>
+            <tr>
+                <th> Date and Time </th>
+                <th> Quantity </th>
+                <th> Address </th>
+                <th> Customer </th>
+                <th> Staff </th>
+                <th> Actions </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Orders)
+            {
+            <tr>
+                <td> @order.OrderDateTime </td>
+                <td> @order.Quantity </td>
+                <td> @order.Location </td>
+                <td> @order.Customer.FirstName </td>
+                <td> @order.Staff.FirstName </td>
+                <td>
+                    <a href="/orders/view/@order.Id" class="btn btn-primary">
+                        <span class="oi oi-book"></span>
+                    </a>
+                    <a href="/orders/edit/@order.Id" class="btn btn-warning">
+                        <span class="oi oi-pencil"></span>
+                    </a>
+                    <button class="btn btn-danger" @onclick="@(()=>Delete(order.Id))">
+                        <span class="oi oi-delete"></span>
+                    </button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Order> Orders;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Orders = await _client.GetFromJsonAsync<List<Order>>($"{Endpoint.OrdersEndpoint}");
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await js.InvokeVoidAsync("AddDataTable", "#ordersTable");
+    }
+
+    public void Dispose()
+    {
+        js.InvokeVoidAsync("DataTablesDispose", "#ordersTable");
+    }
+
+    async Task Delete(int orderId)
+    {
+        var order = Orders.First(q => q.Id == orderId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {order.Id}?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoint.OrdersEndpoint}/{orderId}");
+            await OnInitializedAsync();
+        }
+    }
+
+}
+
+<a href="/ordervehicle/" class="btn-btn-secondary">
+    <span class="oi oi-arrow-right"></span>
+    View Order Vehicles
+</a>

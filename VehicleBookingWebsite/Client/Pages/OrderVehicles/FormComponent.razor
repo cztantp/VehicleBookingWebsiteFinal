@@ -1,0 +1,83 @@
+﻿@inject HttpClient _client
+
+<EditForm Model="@ordervehicle" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <fieldset disabled="@Disabled">
+        <div class="form-group">
+            <label>Order: </label>
+            <div>
+                <InputSelect @bind-Value="ordervehicle.OrderID" class="form-control">
+                    <option value="">-- Select Order --</option>
+                    @if (Orders != null)
+                    {
+                        foreach (var orders in Orders)
+                        {
+                            <option value="@orders.Id">@orders.OrderDateTime - @orders.Location</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => ordervehicle.OrderID)" />
+            </div>
+
+            <label>Vehicle: </label>
+            <div>
+                <InputSelect @bind-Value="ordervehicle.VehicleID" class="form-control">
+                    <option value="">-- Select Vehicle --</option>
+                    @if (Vehicle != null)
+                    {
+                        foreach (var vehicles in Vehicle)
+                        {
+                            <option value="@vehicles.Id">@vehicles.LicensePlateNumber</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => ordervehicle.VehicleID)" />
+            </div>
+
+            <label>Vehicle Type: </label>
+            <div>
+                <InputSelect @bind-Value="ordervehicle.VehicleTypeID" class="form-control">
+                    <option value="">-- Select VehicleType --</option>
+                    @if (VehicleTypes != null)
+                    {
+                        foreach (var vehicletypes in VehicleTypes)
+                        {
+                            <option value="@vehicletypes.Id">@vehicletypes.Name</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => ordervehicle.VehicleTypeID)" />
+            </div>            
+        </div>
+    </fieldset>
+
+    @if (!Disabled)
+    {
+        <button type="submit" class="btn btn-success btn-block">
+
+            @ButtonText
+
+        </button>
+    }
+    <BackToList Target="ordervehicle" />
+</EditForm>
+
+@code {
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public OrderVehicle ordervehicle { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    private IList<Order> Orders;
+    private IList<Vehicle> Vehicle;
+    private IList<VehicleType> VehicleTypes;
+
+    protected async override Task OnInitializedAsync()
+
+    {
+        Orders = await _client.GetFromJsonAsync<List<Order>>($"{Endpoint.OrdersEndpoint}");
+        Vehicle = await _client.GetFromJsonAsync<List<Vehicle>>($"{Endpoint.VehiclesEndpoint}");
+        VehicleTypes = await _client.GetFromJsonAsync<List<VehicleType>>($"{Endpoint.VehicleTypesEndpoint}");
+    }
+}
